@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Hub</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4e73df, #1cc88a);
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    /* Card container */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: #4e73df;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #f1f1f1;
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+      .card h2 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Learning Hub</h1>
+    <p>Explore knowledge across different subjects</p>
+  </header>
+
+  <section class="cards">
+    <div class="card" onclick="location.href='gk.html'">
+      <h2>GK</h2>
+      <p>Discover events, cultures, and civilizations that shaped our world.</p>
+    </div>
+
+    <div class="card" onclick="location.href='gk.html'">
+      <h2>Math</h2>
+      <p>Solve problems and explore patterns in numbers and logic.</p>
+    </div>
+
+    <div class="card" onclick="location.href='gk.html'">
+      <h2>Computer</h2>
+      <p>Dive into technology, programming, and the digital revolution.</p>
+    </div>
+
+    <div class="card" onclick="location.href='gk.html'">
+      <h2>English</h2>
+      <p>Improve your language, communication, and literature skills.</p>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Learning Hub. All rights reserved.
+  </footer>
+  </script>
+</body>
+</html>
