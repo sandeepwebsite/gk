@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSC Instruments Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      padding: 20px;
+    }
+
+    .quiz-container {
+      background: #1e1e2f;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 600px;
+      animation: fadeIn 0.6s ease-in-out;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .option, .btn {
+      background: #2c2c44;
+      border: none;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+      width: 100%;
+      color: #fff;
+    }
+
+    .option:hover, .btn:hover {
+      background: #4c4c7a;
+    }
+
+    .correct { background: #28a745 !important; }
+    .wrong { background: #dc3545 !important; }
+
+    .timer, .q-number {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #ffd369;
+    }
+
+    .hidden { display: none; }
+
+    .review {
+      text-align: left;
+      margin-top: 20px;
+      padding: 15px;
+      background: #2c2c44;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .review h4 { margin: 10px 0 5px; font-size: 16px; }
+    .your-answer { color: #ff7675; }
+    .correct-answer { color: #55efc4; }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="q-number">Question <span id="qNo">1</span> of <span id="totalQ">0</span></div>
+    <div class="timer">Time: <span id="time">15</span>s</div>
+    <h2 id="question">Question text</h2>
+    <div id="options"></div>
+    <div id="result" class="hidden"></div>
+    <div id="review" class="hidden"></div>
+    <div id="endBtns" class="hidden">
+      <button class="btn" onclick="restartQuiz()">🔄 Restart Quiz</button>
+      <button class="btn" onclick="quitQuiz()">🚪 Quit Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      {question: "Which instrument is used to measure electric current?", answer: "Ammeter", options: ["Ammeter", "Voltmeter", "Ohmmeter", "Wattmeter"]},
+      {question: "Which instrument is used to measure potential difference (voltage)?", answer: "Voltmeter", options: ["Ammeter", "Voltmeter", "Manometer", "Altimeter"]},
+      {question: "Which instrument is used to measure resistance?", answer: "Ohmmeter", options: ["Ohmmeter", "Voltmeter", "Barometer", "Compass"]},
+      {question: "Which instrument measures voltage, current, resistance?", answer: "Multimeter", options: ["Multimeter", "Galvanometer", "Wattmeter", "Hygrometer"]},
+      {question: "Which instrument detects and measures small electric current?", answer: "Galvanometer", options: ["Galvanometer", "Ammeter", "Voltmeter", "Tachometer"]},
+      {question: "Which instrument measures electrical power?", answer: "Wattmeter", options: ["Wattmeter", "Voltmeter", "Photometer", "Barometer"]},
+      {question: "Which instrument measures humidity in air?", answer: "Hygrometer", options: ["Hygrometer", "Anemometer", "Manometer", "Altimeter"]},
+      {question: "Which instrument measures atmospheric pressure?", answer: "Barometer", options: ["Barometer", "Manometer", "Altimeter", "Compass"]},
+      {question: "Which instrument measures pressure of gases?", answer: "Manometer", options: ["Manometer", "Barometer", "Voltmeter", "Seismograph"]},
+      {question: "Which instrument measures wind speed?", answer: "Anemometer", options: ["Anemometer", "Hygrometer", "Altimeter", "Rain Gauge"]},
+      {question: "Which instrument measures altitude?", answer: "Altimeter", options: ["Altimeter", "Barometer", "Seismograph", "Compass"]},
+      {question: "Which instrument measures earthquakes?", answer: "Seismograph", options: ["Seismograph", "Sonar", "Radar", "Manometer"]},
+      {question: "Which instrument measures speed of a vehicle?", answer: "Speedometer", options: ["Speedometer", "Odometer", "Tachometer", "Altimeter"]},
+      {question: "Which instrument measures distance traveled by a vehicle?", answer: "Odometer", options: ["Odometer", "Speedometer", "Tachometer", "Seismograph"]},
+      {question: "Which instrument measures intensity of light?", answer: "Photometer", options: ["Photometer", "Spectrometer", "Pyranometer", "Voltmeter"]},
+      {question: "Which instrument measures properties of light spectrum?", answer: "Spectrometer", options: ["Spectrometer", "Photometer", "Microscope", "Barometer"]},
+      {question: "Which instrument measures rotational speed (RPM)?", answer: "Tachometer", options: ["Tachometer", "Speedometer", "Odometer", "Manometer"]},
+      {question: "Which instrument measures blood pressure?", answer: "Sphygmomanometer", options: ["Sphygmomanometer", "Stethoscope", "Thermometer", "Glucometer"]},
+      {question: "Which instrument is used to hear heartbeat and internal sounds?", answer: "Stethoscope", options: ["Stethoscope", "Sphygmomanometer", "Thermometer", "Voltmeter"]},
+      {question: "Which instrument measures temperature?", answer: "Thermometer", options: ["Thermometer", "Barometer", "Ammeter", "Compass"]},
+      {question: "Which instrument measures blood glucose level?", answer: "Glucometer", options: ["Glucometer", "Manometer", "Lactometer", "Spectrometer"]},
+      {question: "Which instrument measures purity of milk?", answer: "Lactometer", options: ["Lactometer", "Lactoscope", "Hygrometer", "Pyranometer"]},
+      {question: "Which instrument measures solar radiation?", answer: "Pyranometer", options: ["Pyranometer", "Photometer", "Spectrometer", "Barometer"]},
+      {question: "Which instrument determines fat content in milk?", answer: "Lactoscope", options: ["Lactoscope", "Lactometer", "Hygrometer", "Manometer"]},
+      {question: "Which instrument measures rainfall?", answer: "Rain Gauge", options: ["Rain Gauge", "Anemometer", "Barometer", "Altimeter"]},
+      {question: "Which instrument shows direction (navigation)?", answer: "Compass", options: ["Compass", "Radar", "Altimeter", "Odometer"]},
+      {question: "Which instrument detects and measures distance, speed, direction of objects?", answer: "Radar", options: ["Radar", "Sonar", "Seismograph", "Manometer"]},
+      {question: "Which instrument measures depth of sea and detects underwater objects?", answer: "Sonar", options: ["Sonar", "Radar", "Seismograph", "Altimeter"]}
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    let questions, currentQuestion, score, timeLeft, timer;
+    let userAnswers = [];
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const timeEl = document.getElementById("time");
+    const qNoEl = document.getElementById("qNo");
+    const totalQEl = document.getElementById("totalQ");
+    const resultEl = document.getElementById("result");
+    const reviewEl = document.getElementById("review");
+    const endBtns = document.getElementById("endBtns");
+
+    function startQuiz() {
+      questions = shuffle([...quizData]);
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = [];
+      totalQEl.textContent = questions.length;
+      resultEl.classList.add("hidden");
+      reviewEl.classList.add("hidden");
+      endBtns.classList.add("hidden");
+      document.querySelector(".timer").style.display = "block";
+      document.querySelector(".q-number").style.display = "block";
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      clearInterval(timer);
+      timeLeft = 15;
+      timeEl.textContent = timeLeft;
+
+      const q = questions[currentQuestion];
+      questionEl.textContent = q.question;
+      optionsEl.innerHTML = "";
+      qNoEl.textContent = currentQuestion + 1;
+
+      let shuffledOptions = shuffle([...q.options]);
+
+      shuffledOptions.forEach(option => {
+        const btn = document.createElement("button");
+        btn.classList.add("option");
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(btn, q.answer);
+        optionsEl.appendChild(btn);
+      });
+
+      timer = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft === 0) {
+          clearInterval(timer);
+          userAnswers.push({question: q.question, selected: "No Answer", correct: q.answer});
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(button, correct) {
+      const q = questions[currentQuestion];
+      const options = document.querySelectorAll(".option");
+      userAnswers.push({question: q.question, selected: button.textContent, correct: correct});
+
+      if (button.textContent === correct) {
+        button.classList.add("correct");
+        score++;
+        setTimeout(nextQuestion, 800);
+      } else {
+        button.classList.add("wrong");
+        options.forEach(opt => {
+          if (opt.textContent === correct) {
+            opt.classList.add("correct");
+          }
+        });
+        setTimeout(nextQuestion, 1200);
+      }
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      clearInterval(timer);
+      questionEl.textContent = "Quiz Completed!";
+      optionsEl.innerHTML = "";
+      resultEl.innerHTML = `<h3>Your Score: ${score}/${questions.length} 🎉</h3>`;
+      resultEl.classList.remove("hidden");
+
+      // Review Section
+      let reviewHTML = "<h3>Review Answers</h3>";
+      userAnswers.forEach((item, index) => {
+        reviewHTML += `
+          <div class="review">
+            <h4>Q${index + 1}: ${item.question}</h4>
+            <div class="your-answer">Your Answer: ${item.selected}</div>
+            <div class="correct-answer">Correct Answer: ${item.correct}</div>
+          </div>`;
+      });
+      reviewEl.innerHTML = reviewHTML;
+      reviewEl.classList.remove("hidden");
+
+      document.querySelector(".timer").style.display = "none";
+      document.querySelector(".q-number").style.display = "none";
+      endBtns.classList.remove("hidden");
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+
+    function quitQuiz() {
+      questionEl.textContent = "Thanks for playing! 👋";
+      optionsEl.innerHTML = "";
+      resultEl.classList.add("hidden");
+      reviewEl.classList.add("hidden");
+      endBtns.classList.add("hidden");
+    }
+
+    // Start quiz when page loads
+    startQuiz();
+  </script>
+</body>
+</html>
