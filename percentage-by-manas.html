@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Percentage Math Quiz with Review</title>
+<style>
+  :root{
+    --bg:#0f1724; --accent:#4f46e5; --muted:#94a3b8;
+    --success:#10b981; --danger:#ef4444;
+    color-scheme: dark;
+  }
+  html,body{
+    margin:0;min-height:100%;
+    font-family: system-ui, sans-serif;
+    background:linear-gradient(180deg,#071028,#07172a);
+    color:#e6eef6;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:16px;}
+  header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  h1{margin:0;font-size:clamp(18px,4vw,22px);}
+  button{padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;}
+  button.primary{background:linear-gradient(90deg,var(--accent),#06b6d4);color:#fff;border:0;}
+  .card{background:rgba(255,255,255,0.03);border-radius:12px;padding:18px;}
+  .meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;font-size:14px;color:var(--muted);}
+  .question{font-size:clamp(18px,5vw,20px);margin:12px 0;font-weight:700;line-height:1.4;}
+  .options{display:grid;gap:10px;}
+  .opt{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+       border-radius:10px;padding:14px;cursor:pointer;font-size:16px;text-align:left;
+       transition:.15s;word-break:break-word;}
+  .opt.disabled{opacity:.6;pointer-events:none;}
+  .opt.correct{outline:2px solid var(--success);}
+  .opt.wrong{outline:2px solid var(--danger);}
+  .progress{height:8px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;}
+  .progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#06b6d4);transition:.3s;}
+  .footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .small{font-size:13px;color:var(--muted);}
+  /* Review mode */
+  .review{margin-top:14px;}
+  .review-item{border-bottom:1px solid rgba(255,255,255,0.1);padding:10px 0;}
+  .review-item:last-child{border-bottom:0;}
+  .review-q{font-weight:600;}
+  .review-your{color:var(--danger);}
+  .review-correct{color:var(--success);}
+
+/*  @media print {
+  body * {
+    visibility: hidden;
+  }
+  #review, #review * {
+    visibility: visible;
+  }
+  #review {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}*/
+
+.nav-buttons button {
+  margin: 0 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: linear-gradient(90deg,var(--accent),#06b6d4);
+  color: #fff;
+  border: none;
+  transition: 0.2s;
+}
+
+.nav-buttons button:hover {
+  transform: scale(1.05);
+}
+#nextBtn{
+  display: none;
+}
+
+.save-btn {
+  display: block;
+  margin: 18px auto;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(90deg,#4f46e5,#06b6d4);
+  color: #fff;
+  transition: 0.2s;
+}
+.save-btn:hover {
+  background: linear-gradient(90deg,#06b6d4,#4f46e5);
+}
+
+
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Percentage Quiz</h1>
+    <button id="restartBtn" class="primary">Restart</button>
+  </header>
+  <main class="card">
+    <div class="meta">
+      <div id="score">Score: 0</div>
+      <div id="progressText">0 / 6</div>
+    </div>
+    <div id="question" class="question"></div>
+    <div id="options" class="options"></div>
+    <div class="footer">
+      <div class="progress" style="flex:1;"><i id="progressBar"></i></div>
+      <div id="feedback" class="small">Tap to answer</div>
+    </div>
+    <div id="review" class="review" style="display:none;"></div>
+    <div id="navButtons" class="nav-buttons" style="text-align:center; margin-top:12px;">
+        <button id="prevBtn" class="primary">Previous</button>
+        <button id="skipBtn" class="primary">Skip</button>
+        <button id="nextBtn" class="primary">Next</button>
+      </div>
+
+<div id="review" class="review" style="display:none;"></div>
+<div style="text-align:center; margin-top:16px;">
+  <button id="savePdfBtn" class="primary" style="display:none;">Save Responses as PDF</button>
+</div>
+
+
+  </main>
+</div>
+
+<script>
+  let questionStartTime = 0;
+
+(() => {
+  const QUESTIONS=[
+    {text:"If 20% of a = b, then b% of 20 is the same as:", 
+   choices:["4% of a","5% of a","20% of a","None of these"], correctIndex:0},
+
+  {text:"Two numbers A and B are such that the sum of 5% of A and 4% of B is two-third of the sum of 6% of A and 8% of B. Find the ratio of A : B.", 
+   choices:["2 : 3","1 : 1","3 : 4","4 : 3"], correctIndex:3},
+
+  {text:"Gauri bought items worth Rs. 25, out of which 30 paise was sales tax at 6%. What was the cost of tax-free items?", 
+   choices:["Rs. 15","Rs. 15.70","Rs. 19.70","Rs. 20"], correctIndex:2},
+
+  {text:"When 60% of a number is subtracted from another number, the second number reduces to its 52%. The ratio of the first to the second number is:", 
+   choices:["6 : 5","5 : 3","5 : 4","4 : 5"], correctIndex:3},
+
+  {text:"After 25 kg of water evaporated from a 20% salt solution, the remaining solution had 30% salt. Find the original weight of solution.", 
+   choices:["60 kg","75 kg","50 kg","45 kg"], correctIndex:1},
+
+  {text:"In an exam, 80% passed in English, 85% in Maths and 75% in both. If 40 students failed in both subjects, find the total number of students.", 
+   choices:["600","400","500","450"], correctIndex:1},
+
+  {text:"If 50% of (P - Q) = 30% of (P + Q) and Q = x% of P, then x is:", 
+   choices:["30","25","20","50"], correctIndex:1},
+
+  {text:"Madan pays 10% tax. If income increases by 10% and tax rate rises to 15%, net income increases by Rs. 350. What is his income?", 
+   choices:["Rs. 8000","Rs. 10000","Rs. 12000","Rs. 14000"], correctIndex:1},
+
+  {text:"Two numbers are in ratio 5:4. If 40% of first is 12, what is 50% of the second?", 
+   choices:["12","24","18","Data Inadequate"], correctIndex:0},
+
+  {text:"A bakery has 40 dozen rolls. Half sold by noon, 60% of rest sold later. How many dozen remain unsold?", 
+   choices:["6","8","10","12"], correctIndex:3},
+
+  {text:"Egg price rises 30%. For Rs. 7.80, 3 fewer eggs can be bought. Current price per dozen is:", 
+   choices:["Rs. 8.64","Rs. 8.88","Rs. 9.36","Rs. 10.40"], correctIndex:2},
+
+  {text:"Rice price is reduced by 2%. How many kg can now be bought for money that earlier bought 49 kg?", 
+   choices:["48","49","50","51"], correctIndex:2},
+
+  {text:"From pure milk, 20% is replaced by water three times. Final milk purity is:", 
+   choices:["40%","50%","51.2%","58.8%"], correctIndex:2},
+
+  {text:"A’s salary is 40% of B’s, and B’s is 25% of C’s. A’s salary is what % of C’s?", 
+   choices:["5%","10%","15%","20%"], correctIndex:1},
+
+  {text:"Salary increases 50% every year. If today’s salary is Rs. 10000, what will it be after 4 years?", 
+   choices:["Rs. 26500","Rs. 33750","Rs. 50625","Rs. 62500"], correctIndex:2},
+
+  {text:"Tax rate rises from 4 paise to 5 paise per rupee but revenue rises only 10%. Find % decrease in amount taxed.", 
+   choices:["12","14","16","None of these"], correctIndex:0},
+
+  {text:"A number is decreased by 10% then increased by 10%. Result is 50 less than original. Find original number.", 
+   choices:["5000","5050","5500","5900"], correctIndex:0},
+
+  {text:"Rs. 2236 divided among A, B, C. A gets 25% more than C, C gets 25% less than B. Find A’s share.", 
+   choices:["460","780","890","1280"], correctIndex:1},
+
+  {text:"In election, 4% votes invalid. Candidate gets 55% of valid votes and wins by 4200. Find total votes.", 
+   choices:["30000","43750","45000","42000"], correctIndex:1},
+
+  {text:"In an exam, 35% failed in one subject, 42% in another, 15% in both. Out of 2500 candidates, how many passed in either subject but not both?", 
+   choices:["325","1175","2125","None of these"], correctIndex:1},
+   {text:"A and B are two fixed points 5 cm apart. C is a point on AB such that AC = 3 cm. If AC is increased by 6%, CB decreases by:", 
+ choices:["6%","7%","8%","9%"], correctIndex:3},
+
+{text:"In an office, 40% staff is female. 70% of females and 50% of males are married. What percentage of staff is unmarried?", 
+ choices:["65%","42%","60%","64%"], correctIndex:1},
+
+{text:"In an exam A got 25% more than B, B got 10% less than C, and C got 25% more than D. If D got 320/500, A’s marks were:", 
+ choices:["405","450","360","400"], correctIndex:1},
+
+{text:"An empty fuel tank is filled with petrol A. When half-empty, it is filled with petrol B. Again half-empty, filled with A. Again half-empty, filled with B. What % of A petrol is present now?", 
+ choices:["33.5%","37.5%","40%","50%"], correctIndex:1},
+
+{text:"A man spent 20% of money on an article and 5% of remaining on transport, then gifted Rs. 120. Left with Rs. 1400. How much did he spend on transport?", 
+ choices:["Rs. 76","Rs. 61","Rs. 95","Rs. 80"], correctIndex:3},
+
+{text:"In a town, population was 8000. Male population increased 10%, female 8%. Total became 8720. Find number of males.", 
+ choices:["4000","4500","5000","6000"], correctIndex:0},
+
+{text:"Weight of empty bucket is 25% of its full weight. After removing some liquid, bucket weighs 3/5 of full weight. What % of liquid is removed?", 
+ choices:["40%","62.5%","56.6%","53.3%"], correctIndex:3},
+
+{text:"Rs. 9600 is invested partly at 5% and partly at 3%. If annual incomes are equal, what is total income?", 
+ choices:["Rs. 360","Rs. 380","Rs. 410","Rs. 440"], correctIndex:0},
+
+{text:"How many litres of 30% alcohol must be added to 40 L of 60% alcohol to make 50% solution?", 
+ choices:["20","24","30","32"], correctIndex:0},
+
+{text:"In a class of 65 students and 4 teachers, each student got sweets = 20% of students, each teacher got sweets = 40% of students. Total sweets?", 
+ choices:["104","845","949","897"], correctIndex:2},
+
+{text:"On a 250-question test, Jassi answered 40% of first 125 correctly. What % of other 125 must be correct to get 60% overall?", 
+ choices:["60%","75%","80%","Cannot be determined"], correctIndex:2},
+
+{text:"A box has 14 apples and 23 oranges. How many oranges must be removed so that apples are 70% of total?", 
+ choices:["6","12","17","36"], correctIndex:2},
+
+{text:"A building worth Rs. 133100 is built on land worth Rs. 72900. If land appreciates 10% p.a. and building depreciates 10% p.a., when will their values be equal?", 
+ choices:["1.5 years","2 years","6 years","3 years"], correctIndex:3},
+
+{text:"An interval of 3 hr 40 min is wrongly estimated as 3 hr 45.5 min. Error % is:", 
+ choices:["2.5%","5%","5.2%","5.5%"], correctIndex:0},
+
+{text:"Vinay planned to donate 5% of salary. Instead donated Rs. 1687.50, which was 75% of planned donation. What is his salary?", 
+ choices:["Rs. 33750","Rs. 37500","Rs. 45000","Cannot be determined"], correctIndex:2}
+  ];
+  let order=[],pos=0,score=0,accepting=true,responses=[];
+  let startTime=0; // start time for each question
+
+  const qEl=document.getElementById("question"),
+        oEl=document.getElementById("options"),
+        scoreEl=document.getElementById("score"),
+        prog=document.getElementById("progressText"),
+        bar=document.getElementById("progressBar"),
+        feedback=document.getElementById("feedback"),
+        reviewEl=document.getElementById("review");
+
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+  function startQuiz(){
+    order=shuffle([...QUESTIONS.keys()]);
+    pos=0;score=0;responses=[];
+    scoreEl.textContent="Score: 0";
+    reviewEl.style.display="none";reviewEl.innerHTML="";
+    nextQ();
+  }
+
+  function nextQ(){
+  if(pos>=order.length){finish();return;}
+  const q=QUESTIONS[order[pos]];
+  qEl.textContent=`Q${pos+1}. ${q.text}`;
+  oEl.innerHTML="";
+  let opts=q.choices.map((c,i)=>({text:c,correct:i===q.correctIndex}));
+  opts=shuffle(opts);
+  const labels=["(A)","(B)","(C)","(D)"];
+  opts.forEach((opt,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"; 
+    b.innerHTML=`${labels[i]} ${opt.text}`;   // 👈 now shows (A), (B), ...
+    b.onclick=()=>select(opt,b,q,opts);
+    oEl.appendChild(b);
+  });
+  prog.textContent=`${pos+1} / ${QUESTIONS.length}`;
+  bar.style.width=`${(pos/QUESTIONS.length)*100}%`;
+  feedback.textContent="Choose an answer";
+  accepting=true;
+  startTime=Date.now();
+}
+
+function nextQ(){
+  if(pos>=order.length){finish();return;}
+  const q=QUESTIONS[order[pos]];
+  qEl.textContent=`Q${pos+1}. ${q.text}`;
+  oEl.innerHTML="";
+
+  // record start time
+  questionStartTime = Date.now();
+  
+  let opts=q.choices.map((c,i)=>({text:c,correct:i===q.correctIndex}));
+  opts=shuffle(opts);
+  opts.forEach((opt,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"; 
+    b.innerHTML=`(${String.fromCharCode(65+i)}) ${opt.text}`;  // (A), (B) etc
+    b.onclick=()=>select(opt,b,q,opts);
+    oEl.appendChild(b);
+  });
+  prog.textContent=`${pos+1} / ${QUESTIONS.length}`;
+  bar.style.width=`${(pos/QUESTIONS.length)*100}%`;
+  feedback.textContent="Choose an answer";
+  accepting=true;
+}
+
+
+document.getElementById("prevBtn").onclick = () => {
+  if(pos > 0){
+    pos--;
+    nextQ();
+  }
+};
+
+document.getElementById("skipBtn").onclick = () => {
+  responses.push({
+    q: QUESTIONS[order[pos]].text,
+    your: "Skipped",
+    correct: QUESTIONS[order[pos]].choices[QUESTIONS[order[pos]].correctIndex],
+    timeTaken: ((Date.now() - questionStartTime)/1000).toFixed(1)
+  });
+  pos++;
+  nextQ();
+};
+
+document.getElementById("nextBtn").onclick = () => {
+  // just go to next question (same as skip but without recording "Skipped")
+  pos++;
+  nextQ();
+};
+
+
+
+
+
+
+
+
+
+
+window.addEventListener("keydown",e=>{
+  if(!accepting)return;
+  const keys={a:0,b:1,c:2,d:3}; // map keys
+  let idx=keys[e.key.toLowerCase()];
+  if(idx!==undefined && oEl.children[idx]){
+    oEl.children[idx].click();
+  }
+});
+
+
+  function select(opt,btn,q,opts){
+  if(!accepting)return;accepting=false;
+  [...oEl.children].forEach(b=>b.classList.add("disabled"));
+  
+  let yourAnswer=opt.text, correctAnswer=q.choices[q.correctIndex];
+  let timeTaken = ((Date.now() - questionStartTime) / 1000).toFixed(1); // in seconds
+  
+  if(opt.correct){
+    btn.classList.add("correct");
+    score++;
+    scoreEl.textContent=`Score: ${score}`;
+    feedback.textContent="Correct ✅";
+  } else {
+    btn.classList.add("wrong");
+    [...oEl.children].find(b=>b.textContent.includes(correctAnswer)).classList.add("correct");
+    feedback.textContent="Wrong ❌";
+  }
+  
+  responses.push({q:q.text,your:yourAnswer,correct:correctAnswer,timeTaken});
+  setTimeout(()=>{pos++;nextQ();},900);
+}
+
+
+function finish(){
+  qEl.textContent = `Finished! Score: ${score}/${QUESTIONS.length}`;
+  oEl.innerHTML = ""; 
+  bar.style.width = "100%"; 
+  feedback.textContent = "Review your answers below:";
+  // Hide nav buttons
+    document.getElementById("navButtons").style.display = "none";
+
+  reviewEl.style.display = "block";
+  reviewEl.innerHTML = responses.map((r,i)=>`
+    <div class="review-item">
+      <div class="review-q">Q${i+1}. ${r.q}</div>
+      <div class="review-your">Your answer: ${r.your}</div>
+      <div class="review-correct">Correct answer: ${r.correct}</div>
+      <div class="review-time">⏱ Time taken: ${r.timeTaken} sec</div>
+    </div>
+  `).join("");
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Save Responses as PDF";
+  saveBtn.className = "save-btn";
+  saveBtn.onclick = ()=> window.print();
+  reviewEl.appendChild(saveBtn);
+}
+
+
+
+  document.getElementById("restartBtn").onclick=startQuiz;
+  window.addEventListener("keydown",e=>{
+    if(!accepting)return;
+    if(["1","2","3","4"].includes(e.key)){
+      const idx=+e.key-1;
+      if(oEl.children[idx])oEl.children[idx].click();
+    }});
+  startQuiz();
+})();
+</script>
+</body>
+</html>
