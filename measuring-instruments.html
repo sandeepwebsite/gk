@@ -28,12 +28,21 @@
       overflow-y: auto;
       max-height: 90vh;
     }
-
+  .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #ffd369;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
+    h1{
+      text-align: center;
+    }
     h2 {
       margin-bottom: 15px;
       font-size: 20px;
@@ -83,16 +92,19 @@
 </head>
 <body>
   <div class="quiz-container">
-    <div class="q-number">Question <span id="qNo">1</span> of <span id="totalQ">0</span></div>
-    <div class="timer">Time: <span id="time">15</span>s</div>
+    <h1>Measuring Instruments Quiz</h1>
+    <div class="top-bar">
+      <div class="q-number">Question <span id="qNo">1</span> of <span id="totalQ">0</span></div>
+      <div class="timer">Time: <span id="time">15</span>s</div>
+    </div>
     <h2 id="question">Question text</h2>
     <div id="options"></div>
     <div id="result" class="hidden"></div>
-    <div id="review" class="hidden"></div>
     <div id="endBtns" class="hidden">
       <button class="btn" onclick="restartQuiz()">🔄 Restart Quiz</button>
       <button class="btn" onclick="quitQuiz()">🚪 Quit Quiz</button>
     </div>
+    <div id="review" class="hidden"></div>
   </div>
 
   <script>
@@ -124,7 +136,8 @@
       {question: "Which instrument measures rainfall?", answer: "Rain Gauge", options: ["Rain Gauge", "Anemometer", "Barometer", "Altimeter"]},
       {question: "Which instrument shows direction (navigation)?", answer: "Compass", options: ["Compass", "Radar", "Altimeter", "Odometer"]},
       {question: "Which instrument detects and measures distance, speed, direction of objects?", answer: "Radar", options: ["Radar", "Sonar", "Seismograph", "Manometer"]},
-      {question: "Which instrument measures depth of sea and detects underwater objects?", answer: "Sonar", options: ["Sonar", "Radar", "Seismograph", "Altimeter"]}
+      {question: "Which instrument measures depth of sea and detects underwater objects?", answer: "Sonar", options: ["Sonar", "Radar", "Seismograph", "Altimeter"]},
+      {question: "Which instrument is used to measure humidity in air?", answer: "Hygrometer", options: ["Hygrometer", "Psychrometer", "Barometer", "Anemometer"]}
     ];
 
     function shuffle(array) {
