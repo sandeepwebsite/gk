@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study of Different Fields Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      padding: 20px;
+    }
+
+    .quiz-container {
+      background: #1e1e2f;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 600px;
+      animation: fadeIn 0.6s ease-in-out;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+  .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #ffd369;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1{
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .option, .btn {
+      background: #2c2c44;
+      border: none;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+      width: 100%;
+      color: #fff;
+    }
+
+    .option:hover, .btn:hover {
+      background: #4c4c7a;
+    }
+
+    .correct { background: #28a745 !important; }
+    .wrong { background: #dc3545 !important; }
+
+    .timer, .q-number {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #ffd369;
+    }
+
+    .hidden { display: none; }
+
+    .review {
+      text-align: left;
+      margin-top: 20px;
+      padding: 15px;
+      background: #2c2c44;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .review h4 { margin: 10px 0 5px; font-size: 16px; }
+    .your-answer { color: #ff7675; }
+    .correct-answer { color: #55efc4; }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Study of Different Fields Quiz</h1>
+    <div class="top-bar">
+      <div class="q-number">Question <span id="qNo">1</span> of <span id="totalQ">0</span></div>
+      <div class="timer">Time: <span id="time">15</span>s</div>
+    </div>
+    <h2 id="question">Question text</h2>
+    <div id="options"></div>
+    <div id="result" class="hidden"></div>
+    <div id="endBtns" class="hidden">
+      <button class="btn" onclick="restartQuiz()">🔄 Restart Quiz</button>
+      <button class="btn" onclick="quitQuiz()">🚪 Quit Quiz</button>
+    </div>
+    <div id="review" class="hidden"></div>
+  </div>
+
+  <script>
+    const quizData = [
+      {question: "Which branch of biology deals with the study of the internal structure of living organisms?", answer: "Anatomy", options: ["Anatomy", "Morphology", "Histology", "Cytology"]},
+      {question: "Which branch of biology deals with the study of both external and internal structure of organisms?", answer: "Morphology", options: ["Morphology", "Anatomy", "Physiology", "Pathology"]},
+      {question: "Which branch of biology deals with the study of functions of living organisms?", answer: "Physiology", options: ["Physiology", "Pathology", "Cytology", "Biochemistry"]},
+      {question: "Which branch of biology deals with the study of cells?", answer: "Cytology", options: ["Cytology", "Histology", "Genetics", "Pathology"]},
+      {question: "Which branch of biology deals with the study of tissues?", answer: "Histology", options: ["Histology", "Cytology", "Anatomy", "Morphology"]},
+      {question: "Which branch of biology deals with the study of heredity and genes?", answer: "Genetics", options: ["Genetics", "Cytology", "Pathology", "Immunology"]},
+      {question: "Which branch of biology deals with the study of diseases?", answer: "Pathology", options: ["Pathology", "Etiology", "Virology", "Bacteriology"]},
+      {question: "Which branch of biology deals with the study of causes of diseases?", answer: "Etiology", options: ["Etiology", "Pathology", "Oncology", "Toxicology"]},
+      {question: "Which branch of biology deals with the study of bacteria?", answer: "Bacteriology", options: ["Bacteriology", "Virology", "Mycology", "Parasitology"]},
+      {question: "Which branch of biology deals with the study of viruses?", answer: "Virology", options: ["Virology", "Bacteriology", "Pathology", "Immunology"]},
+      {question: "Which branch of biology deals with the study of fungi?", answer: "Mycology", options: ["Mycology", "Lichenology", "Phycology", "Botany"]},
+      {question: "Which branch of biology deals with the study of parasites?", answer: "Parasitology", options: ["Parasitology", "Bacteriology", "Mycology", "Zoology"]},
+      {question: "Which branch of biology deals with the study of animals?", answer: "Zoology", options: ["Zoology", "Botany", "Ecology", "Entomology"]},
+      {question: "Which branch of biology deals with the study of plants?", answer: "Botany/Phytology", options: ["Botany/Phytology", "Zoology", "Mycology", "Ecology"]},
+      {question: "Which branch of biology deals with the relationship between organisms and their environment?", answer: "Ecology", options: ["Ecology", "Taxonomy", "Evolution", "Biochemistry"]},
+      {question: "Which branch of biology deals with the study of fossils?", answer: "Palaeontology", options: ["Palaeontology", "Archaeology", "Geology", "Paleobotany"]},
+      {question: "Which branch of biology deals with the development of embryos?", answer: "Embryology", options: ["Embryology", "Morphology", "Anatomy", "Histology"]},
+      {question: "Which branch of biology deals with classification of organisms?", answer: "Taxonomy", options: ["Taxonomy", "Morphology", "Genetics", "Evolution"]},
+      {question: "Which branch of biology deals with chemical processes in living organisms?", answer: "Biochemistry", options: ["Biochemistry", "Physiology", "Pathology", "Cytology"]},
+      {question: "Which branch of biology deals with the application of biology in technology and medicine?", answer: "Biotechnology", options: ["Biotechnology", "Biophysics", "Genetics", "Microbiology"]},
+      {question: "Which branch of biology deals with the immune system?", answer: "Immunology", options: ["Immunology", "Pathology", "Hematology", "Virology"]},
+      {question: "Which branch of biology deals with the study of hormones?", answer: "Endocrinology", options: ["Endocrinology", "Neurology", "Physiology", "Cytology"]},
+      {question: "Which branch of biology deals with the heart?", answer: "Cardiology", options: ["Cardiology", "Neurology", "Hepatology", "Nephrology"]},
+      {question: "Which branch of biology deals with the nervous system?", answer: "Neurology", options: ["Neurology", "Cardiology", "Endocrinology", "Pathology"]},
+      {question: "Which branch of biology deals with the study of blood?", answer: "Haematology", options: ["Haematology", "Serology", "Pathology", "Cytology"]},
+      {question: "Which branch of biology deals with cancer and tumors?", answer: "Oncology", options: ["Oncology", "Pathology", "Hematology", "Etiology"]},
+      {question: "Which branch of biology deals with the female reproductive system?", answer: "Gynecology", options: ["Gynecology", "Andrology", "Urology", "Obstetrics"]},
+      {question: "Which branch of biology deals with the male reproductive system?", answer: "Andrology", options: ["Andrology", "Gynecology", "Urology", "Embryology"]},
+      {question: "Which branch of biology deals with kidneys?", answer: "Nephrology", options: ["Nephrology", "Urology", "Pathology", "Cardiology"]},
+      {question: "Which branch of biology deals with the urinary system?", answer: "Urology", options: ["Urology", "Nephrology", "Andrology", "Pathology"]},
+      {question: "Which branch of biology deals with birds?", answer: "Ornithology", options: ["Ornithology", "Mammalogy", "Herpetology", "Ichthyology"]},
+      {question: "Which branch of biology deals with fishes?", answer: "Ichthyology", options: ["Ichthyology", "Ornithology", "Herpetology", "Mammalogy"]},
+      {question: "Which branch of biology deals with reptiles and amphibians?", answer: "Herpetology", options: ["Herpetology", "Ichthyology", "Mammalogy", "Entomology"]},
+      {question: "Which branch of biology deals with insects?", answer: "Entomology", options: ["Entomology", "Arachnology", "Myrmecology", "Zoology"]},
+      {question: "Which branch of biology deals with spiders and scorpions?", answer: "Arachnology", options: ["Arachnology", "Entomology", "Myrmecology", "Herpetology"]},
+      {question: "Which branch of biology deals with mammals?", answer: "Mammalogy", options: ["Mammalogy", "Ornithology", "Ichthyology", "Herpetology"]},
+      {question: "Which field of study deals with sound and sound waves?", answer: "Acoustics", options: ["Acoustics", "Optics", "Seismology", "Climatology"]},
+      {question: "Which field of study deals with soils in relation to crop production?", answer: "Agrology", options: ["Agrology", "Pedology", "Geology", "Meteorology"]},
+      {question: "Which field of study deals with human origin, evolution, and cultures?", answer: "Anthropology", options: ["Anthropology", "Archaeology", "Sociology", "Ethnology"]},
+      {question: "Which field of study deals with human history using material remains?", answer: "Archaeology", options: ["Archaeology", "Anthropology", "Geology", "Palaeontology"]},
+      {question: "Which field of study deals with the universe beyond Earth?", answer: "Astronomy", options: ["Astronomy", "Astrology", "Cosmology", "Geology"]},
+      {question: "Which field of study deals with maps?", answer: "Cartology", options: ["Cartology", "Geology", "Pedology", "Hydrology"]},
+      {question: "Which field of study deals with climate?", answer: "Climatology", options: ["Climatology", "Meteorology", "Cosmology", "Geology"]},
+      {question: "Which field of study deals with the origin and structure of the universe?", answer: "Cosmology", options: ["Cosmology", "Astronomy", "Astrology", "Geology"]},
+      {question: "Which field of study deals with crime and criminals?", answer: "Criminology", options: ["Criminology", "Sociology", "Psychology", "Anthropology"]},
+      {question: "Which field of study deals with secret writing and codes?", answer: "Cryptography", options: ["Cryptography", "Graphology", "Philology", "Etymology"]},
+      {question: "Which field of study deals with population?", answer: "Demography", options: ["Demography", "Sociology", "Anthropology", "Ethnology"]},
+      {question: "Which field of study deals with the origin and history of words?", answer: "Etymology", options: ["Etymology", "Philology", "Phonology", "Graphology"]},
+      {question: "Which field of study deals with the Earth?", answer: "Geology", options: ["Geology", "Pedology", "Petrology", "Seismology"]},
+      {question: "Which field of study deals with handwriting?", answer: "Graphology", options: ["Graphology", "Cryptography", "Philology", "Anthropology"]},
+      {question: "Which field of study deals with water?", answer: "Hydrology", options: ["Hydrology", "Limnology", "Geology", "Meteorology"]},
+      {question: "Which field of study deals with inland waters like lakes and rivers?", answer: "Limnology", options: ["Limnology", "Hydrology", "Oceanography", "Meteorology"]},
+      {question: "Which field of study deals with the atmosphere and weather?", answer: "Meteorology", options: ["Meteorology", "Climatology", "Seismology", "Cosmology"]},
+      {question: "Which field of study deals with coins?", answer: "Numismatics", options: ["Numismatics", "Philately", "Cryptography", "Petrology"]},
+      {question: "Which field of study deals with light?", answer: "Optics", options: ["Optics", "Acoustics", "Seismology", "Astronomy"]},
+      {question: "Which field of study deals with teaching methods?", answer: "Pedagogy", options: ["Pedagogy", "Philology", "Sociology", "Anthropology"]},
+      {question: "Which field of study deals with soils?", answer: "Pedology", options: ["Pedology", "Agrology", "Geology", "Petrology"]},
+      {question: "Which field of study deals with rocks?", answer: "Petrology", options: ["Petrology", "Geology", "Seismology", "Pedology"]},
+      {question: "Which field of study deals with drugs and their effects?", answer: "Pharmacology", options: ["Pharmacology", "Toxicology", "Pathology", "Physiology"]},
+      {question: "Which field of study deals with postage stamps?", answer: "Philately", options: ["Philately", "Numismatics", "Cryptography", "Etymology"]},
+      {question: "Which field of study deals with languages and their history?", answer: "Philology", options: ["Philology", "Etymology", "Phonology", "Anthropology"]},
+      {question: "Which field of study deals with sound patterns in languages?", answer: "Phonology", options: ["Phonology", "Philology", "Acoustics", "Graphology"]},
+      {question: "Which field of study deals with earthquakes?", answer: "Seismology", options: ["Seismology", "Geology", "Volcanology", "Petrology"]},
+      {question: "Which field of study deals with society?", answer: "Sociology", options: ["Sociology", "Anthropology", "Ethnology", "Criminology"]},
+      {question: "Which field of study deals with caves?", answer: "Speleology", options: ["Speleology", "Seismology", "Volcanology", "Geology"]},
+      {question: "Which field of study deals with religion?", answer: "Theology", options: ["Theology", "Anthropology", "Sociology", "Ethnology"]},
+      {question: "Which field of study deals with volcanoes?", answer: "Volcanology", options: ["Volcanology", "Seismology", "Geology", "Cosmology"]}
+
+
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    let questions, currentQuestion, score, timeLeft, timer;
+    let userAnswers = [];
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const timeEl = document.getElementById("time");
+    const qNoEl = document.getElementById("qNo");
+    const totalQEl = document.getElementById("totalQ");
+    const resultEl = document.getElementById("result");
+    const reviewEl = document.getElementById("review");
+    const endBtns = document.getElementById("endBtns");
+
+    function startQuiz() {
+      questions = shuffle([...quizData]);
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = [];
+      totalQEl.textContent = questions.length;
+      resultEl.classList.add("hidden");
+      reviewEl.classList.add("hidden");
+      endBtns.classList.add("hidden");
+      document.querySelector(".timer").style.display = "block";
+      document.querySelector(".q-number").style.display = "block";
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      clearInterval(timer);
+      timeLeft = 15;
+      timeEl.textContent = timeLeft;
+
+      const q = questions[currentQuestion];
+      questionEl.textContent = q.question;
+      optionsEl.innerHTML = "";
+      qNoEl.textContent = currentQuestion + 1;
+
+      let shuffledOptions = shuffle([...q.options]);
+
+      shuffledOptions.forEach(option => {
+        const btn = document.createElement("button");
+        btn.classList.add("option");
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(btn, q.answer);
+        optionsEl.appendChild(btn);
+      });
+
+      timer = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft === 0) {
+          clearInterval(timer);
+          userAnswers.push({question: q.question, selected: "No Answer", correct: q.answer});
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(button, correct) {
+      const q = questions[currentQuestion];
+      const options = document.querySelectorAll(".option");
+      userAnswers.push({question: q.question, selected: button.textContent, correct: correct});
+
+      if (button.textContent === correct) {
+        button.classList.add("correct");
+        score++;
+        setTimeout(nextQuestion, 800);
+      } else {
+        button.classList.add("wrong");
+        options.forEach(opt => {
+          if (opt.textContent === correct) {
+            opt.classList.add("correct");
+          }
+        });
+        setTimeout(nextQuestion, 1200);
+      }
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      clearInterval(timer);
+      questionEl.textContent = "Quiz Completed!";
+      optionsEl.innerHTML = "";
+      resultEl.innerHTML = `<h3>Your Score: ${score}/${questions.length} 🎉</h3>`;
+      resultEl.classList.remove("hidden");
+
+      // Review Section
+      let reviewHTML = "<h3>Review Answers</h3>";
+      userAnswers.forEach((item, index) => {
+        reviewHTML += `
+          <div class="review">
+            <h4>Q${index + 1}: ${item.question}</h4>
+            <div class="your-answer">Your Answer: ${item.selected}</div>
+            <div class="correct-answer">Correct Answer: ${item.correct}</div>
+          </div>`;
+      });
+      reviewEl.innerHTML = reviewHTML;
+      reviewEl.classList.remove("hidden");
+
+      document.querySelector(".timer").style.display = "none";
+      document.querySelector(".q-number").style.display = "none";
+      endBtns.classList.remove("hidden");
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+
+    function quitQuiz() {
+      questionEl.textContent = "Thanks for playing! 👋";
+      optionsEl.innerHTML = "";
+      resultEl.classList.add("hidden");
+      reviewEl.classList.add("hidden");
+      endBtns.classList.add("hidden");
+    }
+
+    // Start quiz when page loads
+    startQuiz();
+  </script>
+</body>
+</html>
