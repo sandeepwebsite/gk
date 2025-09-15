@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disease and Deficiency Quiz</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    .quiz-container {
+        background: #fff;
+        width: 100%;
+        max-width: 700px;
+        border-radius: 15px;
+        padding: 20px 30px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #timer {
+        font-weight: bold;
+        color: #ff4d4d;
+    }
+    #question-number {
+        font-weight: bold;
+        color: #333;
+    }
+  	h1{
+  		text-align: center;
+  	}
+    h2 {
+        margin: 0 0 15px 0;
+        font-size: 1.2rem;
+        color: #333;
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .option {
+        padding: 12px;
+        background: #f1f1f1;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+    }
+    .option:hover {
+        background: #d1e7ff;
+    }
+    .option.correct {
+        background: #90ee90;
+        border-color: green;
+    }
+    .option.wrong {
+        background: #ff7f7f;
+        border-color: red;
+    }
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #007bff;
+        color: #fff;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+    .btn:hover {
+        background: #0056b3;
+    }
+    .review-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .review-item {
+        padding: 10px;
+        background: #f1f1f1;
+        border-radius: 8px;
+    }
+    @media(max-width: 480px) {
+        .quiz-container {
+            padding: 15px;
+        }
+        h2 { font-size: 1rem; }
+        .btn { padding: 8px 15px; font-size: 14px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-container">
+  <h1>Disease and Deficiency Quiz</h1>
+    <div class="top-bar">
+        <span id="question-number">Question 1</span>
+        <span id="timer">30s</span>
+    </div>
+    <h2 id="question">Question text</h2>
+    <div class="options" id="options">
+        <div class="option" onclick="selectOption(this)">Option 1</div>
+        <div class="option" onclick="selectOption(this)">Option 2</div>
+        <div class="option" onclick="selectOption(this)">Option 3</div>
+        <div class="option" onclick="selectOption(this)">Option 4</div>
+    </div>
+    <div class="controls">
+        <button class="btn" onclick="quitQuiz()">Quit</button>
+        <button class="btn" onclick="restartQuiz()">Restart</button>
+    </div>
+</div>
+
+<script>
+const quiz = [
+    {question: "What is the full form of AIDS?", options: ["Acquired Immuno Deficiency Syndrome","Auto Immune Deficiency Syndrome","Acute Immuno Disorder Syndrome","Acquired Infectious Disease Syndrome"], answer: "Acquired Immuno Deficiency Syndrome"},
+    {question: "What is the full form of HIV?", options: ["Human Immunodeficiency Virus","Hereditary Immunodeficiency Virus","Human Infection Virus","High Immunity Virus"], answer: "Human Immunodeficiency Virus"},
+    {question: "‘Night Blindness’ is caused due to?", options: ["Vitamin A","Vitamin C","Vitamin D","Vitamin B12"], answer: "Vitamin A"},
+    {question: "‘Wernicke Korsakoff Syndrome’ is caused due to?", options: ["Vitamin B1","Vitamin B2","Vitamin B3","Vitamin B12"], answer: "Vitamin B1"},
+    {question: "‘Pellagra’ disease is caused due to?", options: ["Vitamin B3","Vitamin B1","Vitamin B12","Vitamin C"], answer: "Vitamin B3"},
+    {question: "‘Paresthesia’ is caused due to?", options: ["Vitamin B5","Vitamin B1","Vitamin B3","Vitamin B7"], answer: "Vitamin B5"},
+    {question: "‘Dermatitis’ disease is caused due to?", options: ["Vitamin B7","Vitamin B1","Vitamin B3","Vitamin B5"], answer: "Vitamin B7"},
+    {question: "‘Scurvy’ disease is caused due to?", options: ["Vitamin C","Vitamin D","Vitamin A","Vitamin B12"], answer: "Vitamin C"},
+    {question: "‘Beri-Beri’ disease is caused due to?", options: ["Vitamin B1","Vitamin B2","Vitamin B3","Vitamin B12"], answer: "Vitamin B1"},
+    {question: "‘Rickets’ disease is caused due to?", options: ["Vitamin D","Vitamin C","Vitamin B1","Vitamin A"], answer: "Vitamin D"},
+    {question: "Other than Rickets, deficiency of Vitamin D causes?", options: ["Osteomalacia","Scurvy","Rickets","Beriberi"], answer: "Osteomalacia"},
+    {question: "Sterility in Males & Abortion in Females is caused due to?", options: ["Vitamin E","Vitamin D","Vitamin C","Vitamin A"], answer: "Vitamin E"},
+    {question: "Clotting problem occurs due to deficiency of?", options: ["Vitamin K","Vitamin D","Vitamin A","Vitamin B12"], answer: "Vitamin K"},
+    {question: "‘Anaemia’ disease is caused due to?", options: ["Iron","Vitamin B12","Vitamin C","Vitamin D"], answer: "Iron"},
+    {question: "‘Kwashiorkor’ disease is caused due to?", options: ["Protein","Vitamin B1","Vitamin C","Iron"], answer: "Protein"},
+    {question: "‘Goitre’ disease is caused due to?", options: ["Iodine","Iron","Vitamin D","Vitamin C"], answer: "Iodine"},
+    {question: "Calcium deficiency causes?", options: ["Hypocalcemia","Osteoporosis","Rickets","Scurvy"], answer: "Hypocalcemia"},
+    {question: "Carbohydrate deficiency causes?", options: ["Hypoglycemia","Hyperglycemia","Hypocalcemia","Anemia"], answer: "Hypoglycemia"},
+    {question: "‘Gonorrhea’ is caused by?", options: ["Sexual Intercourse","Virus","Bacteria","Protozoa"], answer: "Sexual Intercourse"},
+    {question: "‘Diphtheria’ is caused by?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+    {question: "‘Pneumonia’ is caused by?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+  	{question: "What are the affected organs in Plague?", options: ["Lymph","Liver","Spleen","Kidney"], answer: "Lymph"},
+    {question: "‘Typhoid’ is caused by?", options: ["Salmonella Typhi","E.coli","Streptococcus","Shigella"], answer: "Salmonella Typhi"},
+    {question: "Which disease is eradicated worldwide?", options: ["Small Pox","Polio","Measles","Cholera"], answer: "Small Pox"},
+    {question: "Who invented ‘Small Pox’ vaccine?", options: ["Edward Jenner","Louis Pasteur","Jonas Salk","Waldemar Haffkine"], answer: "Edward Jenner"},
+    {question: "What is the name of Tuberculosis vaccine?", options: ["BCG","DPT","OPV","MMR"], answer: "BCG"},
+    {question: "The disease ‘Tuberculosis’ which severely affects the Lungs is caused by?", options: ["Mycobacterium Tuberculosis","Streptococcus pneumoniae","Salmonella Typhi","E.coli"], answer: "Mycobacterium Tuberculosis"},
+    {question: "The ‘Salmonellosis’ disease caused by Salmonella bacteria affects which organ?", options: ["Intestine","Liver","Kidney","Spleen"], answer: "Intestine"},
+    {question: "Polio is caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "Hepatitis-A and Hepatitis-B affect?", options: ["Liver","Kidney","Heart","Lungs"], answer: "Liver"},
+    {question: "Jaundice affects which organ?", options: ["Liver","Spleen","Kidney","Heart"], answer: "Liver"},
+    {question: "‘Goitre’ affects which body organ?", options: ["Thyroid","Liver","Kidney","Heart"], answer: "Thyroid"},
+    {question: "The disease ‘Athlete’s Foot’ is caused by which micro-organism?", options: ["Fungus","Bacteria","Virus","Protozoa"], answer: "Fungus"},
+    {question: "‘Ringworms’ is caused by?", options: ["Fungus","Bacteria","Virus","Protozoa"], answer: "Fungus"},
+    {question: "‘Dysentery’ is caused by?", options: ["Shigella","E.coli","Salmonella","Vibrio cholerae"], answer: "Shigella"},
+    {question: "‘Cholera’ is caused by?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+    {question: "‘Leprosy’ is caused by?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+    {question: "‘Meningitis’ is caused by?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+    {question: "‘Plague’ is caused by?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+    {question: "‘Yellow-Fever’ is caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "‘Measles’ is caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "‘Mumps’ is caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "Under which deficiency of Vitamins the bones and teeth become weak?", options: ["Vitamin D","Vitamin A","Vitamin C","Vitamin B12"], answer: "Vitamin D"},
+    {question: "Which body parts does ‘Polio’ affect?", options: ["Legs","Arms","Lungs","Brain"], answer: "Legs"},
+    {question: "‘Malaria’ affects which body part?", options: ["Spleen","Liver","Kidney","Heart"], answer: "Spleen"},
+    {question: "‘Glaucoma’ affects which organ?", options: ["Eyes","Liver","Kidney","Heart"], answer: "Eyes"},
+    {question: "AIDS, Polio, Measles, Influenza are caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "Which disease is caused by Insulin deficiency?", options: ["Diabetes Mellitus","Hypothyroidism","Anemia","Goitre"], answer: "Diabetes Mellitus"},
+    {question: "Which organism’s mode of reproduction is Binary Fission and causes the ‘Kala-Azar’?", options: ["Leishmania","Plasmodium","Trypanosoma","Salmonella"], answer: "Leishmania"},
+    {question: "Deficiency of which vitamin causes failure in Blood clotting?", options: ["Vitamin K","Vitamin D","Vitamin C","Vitamin B12"], answer: "Vitamin K"},
+  	{question: "Infection of the Virus ‘H5N1’ leads to which disease in Humans?", options: ["Bird Flu","Swine Flu","Cholera","Malaria"], answer: "Bird Flu"},
+    {question: "Which pollutant in water causes the ‘Minamata’ disease?", options: ["Methyl Mercury","Lead","Cadmium","Arsenic"], answer: "Methyl Mercury"},
+    {question: "Which is responsible for forming the Kidney Stones?", options: ["Calcium Oxalates","Uric Acid","Sodium Chloride","Phosphate"], answer: "Calcium Oxalates"},
+    {question: "‘Scrub Typhus’ is a type of disease caused by?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+    {question: "Calcium deficiency in old age leads to which disease?", options: ["Osteoporosis","Rickets","Scurvy","Beriberi"], answer: "Osteoporosis"},
+    {question: "Which is the ‘Chickenpox Virus’?", options: ["Varicella Virus","Rubeola Virus","Mumps Virus","Hepatitis Virus"], answer: "Varicella Virus"},
+    {question: "An example of Water Borne disease is?", options: ["Diarrhea","Malaria","Influenza","Dengue"], answer: "Diarrhea"},
+    {question: "‘Malaria’ & ‘Kala-Azar’ are caused by?", options: ["Protozoa","Bacteria","Virus","Fungus"], answer: "Protozoa"},
+    {question: "Poliomyelitis Virus is related to?", options: ["RNA Virus","DNA Virus","Retrovirus","Bacteria"], answer: "RNA Virus"},
+    {question: "‘Dengue’ is caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "Which organ of the body is affected by ‘Leukoderma’?", options: ["Skin","Liver","Kidney","Eyes"], answer: "Skin"},
+    {question: "Which diseases are caused by pollution?", options: ["Minamata and Fluorosis","Malaria and Kala-Azar","Diabetes and Obesity","Dengue and Chikungunya"], answer: "Minamata and Fluorosis"},
+    {question: "Under Arthritis, which part of the body gets affected?", options: ["Joints","Muscles","Bones","Heart"], answer: "Joints"},
+    {question: "Excessive Alcohol consumption depletes which cellular element?", options: ["Potassium","Calcium","Sodium","Magnesium"], answer: "Potassium"},
+    {question: "Which disease is caused by ‘Variola Virus’?", options: ["Small Pox","Chickenpox","Measles","Mumps"], answer: "Small Pox"},
+    {question: "Athlete’s Foot disease is caused by?", options: ["Fungi","Bacteria","Virus","Protozoa"], answer: "Fungi"},
+    {question: "Which disease is caused due to rise in the number of WBCs?", options: ["Leukemia","Polycythemia","Anemia","Scurvy"], answer: "Leukemia"},
+    {question: "Which disease is caused due to rise in the number of RBCs?", options: ["Polycythemia","Leukemia","Anemia","Rickets"], answer: "Polycythemia"},
+    {question: "‘Measles’ is caused by which virus?", options: ["Rubeola Virus","Varicella Virus","Mumps Virus","Rubella Virus"], answer: "Rubeola Virus"},
+    {question: "African Sleeping Sickness is caused by?", options: ["Trypanosoma Brucei","Plasmodium","Leishmania","Salmonella"], answer: "Trypanosoma Brucei"},
+    {question: "‘Diplopia’ disease affects which part of the body?", options: ["Eyes","Legs","Liver","Skin"], answer: "Eyes"},
+    {question: "‘Microcytic Anemia’ is caused by?", options: ["Deficiency of Iron","Deficiency of Vitamin B12","Deficiency of Vitamin C","Deficiency of Calcium"], answer: "Deficiency of Iron"},
+    {question: "‘Pernicious Anemia’ is caused by?", options: ["Deficiency of Vitamin B12","Deficiency of Iron","Deficiency of Vitamin C","Deficiency of Folate"], answer: "Deficiency of Vitamin B12"},
+    {question: "The problem of ‘Baldness’ is related to which micro-organism?", options: ["Fungus","Virus","Bacteria","Protozoa"], answer: "Fungus"},
+    {question: "Which spreads the ‘Kala-Azar’?", options: ["Sand Fly","Mosquito","Tsetse Fly","House Fly"], answer: "Sand Fly"},
+    {question: "‘Haemophilia’ is caused due to?", options: ["Mutation or change in the Genes","Vitamin deficiency","Bacterial infection","Virus infection"], answer: "Mutation or change in the Genes"},
+    {question: "‘Dengue’ is caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "‘Mycosis’ is caused by?", options: ["Fungus","Virus","Bacteria","Protozoa"], answer: "Fungus"},
+    {question: "‘Rabies’ is caused by?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "Who invented the Cholera Vaccine?", options: ["Waldemar Haffkine","Louis Pasteur","Edward Jenner","Jonas Salk"], answer: "Waldemar Haffkine"},
+  	    {question: "Which disease is caused by the pollution of Cadmium metal?", options: ["Itai-Itai Disease","Minamata Disease","Fluorosis","Lead Poisoning"], answer: "Itai-Itai Disease"},
+    {question: "UV Rays coming from the Sun cause which type of cancer?", options: ["Skin Cancer","Lung Cancer","Liver Cancer","Bone Cancer"], answer: "Skin Cancer"},
+    {question: "Which micro-organisms cause diseases like AIDS, HIV, Measles, Mumps, Small-Pox and Polio?", options: ["Virus","Bacteria","Fungus","Protozoa"], answer: "Virus"},
+    {question: "‘Minamata Disease’ is caused by which type of pollution when mixed in water?", options: ["Mercury Poisoning","Cadmium Poisoning","Lead Poisoning","Arsenic Poisoning"], answer: "Mercury Poisoning"},
+    {question: "Which substance lacks in a Diabetes patient?", options: ["Insulin","Glucagon","Vitamin D","Calcium"], answer: "Insulin"},
+    {question: "Which part of the body gets affected due to ‘Trachoma’?", options: ["Eyes","Skin","Liver","Kidney"], answer: "Eyes"},
+    {question: "‘Blue Baby Syndrome’ is caused by?", options: ["Nitrate","Lead","Mercury","Arsenic"], answer: "Nitrate"},
+    {question: "Who invented the vaccine for ‘Polio’ which is now eradicated from India?", options: ["Jonas Salk","Louis Pasteur","Edward Jenner","Waldemar Haffkine"], answer: "Jonas Salk"},
+    {question: "Deficiency of Fluorine causes?", options: ["Dental Caries","Rickets","Scurvy","Anemia"], answer: "Dental Caries"},
+    {question: "Who invented the Vaccine for Rabies?", options: ["Louis Pasteur","Edward Jenner","Jonas Salk","Waldemar Haffkine"], answer: "Louis Pasteur"},
+    {question: "What is the Vaccine for the disease ‘Tuberculosis’ TB called?", options: ["Bacillus Calmette-Guerin (BCG)","DPT","OPV","MMR"], answer: "Bacillus Calmette-Guerin (BCG)"},
+    {question: "Who invented the vaccine for Plague in 1897 AD?", options: ["Waldemar Haffkine","Louis Pasteur","Edward Jenner","Jonas Salk"], answer: "Waldemar Haffkine"},
+    {question: "The ‘Tetanus’ is caused due to?", options: ["Bacteria","Virus","Fungus","Protozoa"], answer: "Bacteria"},
+    {question: "The accumulation of which thing in the bone-joints forms a disease?", options: ["Uric Acid","Calcium","Iron","Potassium"], answer: "Uric Acid"},
+    {question: "Which is reduced in the Human Body in case of ‘Dengue’ fever?", options: ["Platelets Count","RBC Count","WBC Count","Hemoglobin"], answer: "Platelets Count"},
+    {question: "What is the condition called when there is uncontrolled cell multiplication?", options: ["Cancer","Anemia","Leukemia","Rickets"], answer: "Cancer"},
+    {question: "The ‘DPT Vaccine’ is useful for?", options: ["Diphtheria & Tetanus","Polio & Measles","Hepatitis & Chickenpox","Small Pox & Mumps"], answer: "Diphtheria & Tetanus"},
+    {question: "For low blood-pressure, what is responsible?", options: ["Potassium","Sodium","Calcium","Iron"], answer: "Potassium"},
+    {question: "To detect the Leukaemia Cancer, which is used?", options: ["Cobalt-60","MRI","X-ray","Ultrasound"], answer: "Cobalt-60"},
+    {question: "Under Alzheimer disease, which body part is severely affected?", options: ["Brain","Heart","Liver","Kidney"], answer: "Brain"}
+
+];
+
+let currentQuestion = 0;
+let score = 0;
+let timer;
+let timeLeft = 30;
+let userAnswers = [];
+
+function shuffleArray(array) {
+    for(let i=array.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+shuffleArray(quiz);
+
+function loadQuestion() {
+    if(currentQuestion >= quiz.length){
+        showReview();
+        return;
+    }
+    const q = quiz[currentQuestion];
+    document.getElementById('question-number').textContent = `Question ${currentQuestion+1} / ${quiz.length}`;
+    document.getElementById('question').textContent = q.question;
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = "";
+    q.options.forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.textContent = opt;
+        div.onclick = () => selectOption(div);
+        optionsDiv.appendChild(div);
+    });
+    timeLeft = 30;
+    document.getElementById('timer').textContent = `${timeLeft}s`;
+    clearInterval(timer);
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = `${timeLeft}s`;
+        if(timeLeft <=0){
+            clearInterval(timer);
+            userAnswers.push({question:q.question, selected:"None", correct:q.answer});
+            currentQuestion++;
+            loadQuestion();
+        }
+    }, 1000);
+}
+
+function selectOption(selected){
+    clearInterval(timer);
+    const q = quiz[currentQuestion];
+    const optionsDiv = document.querySelectorAll('.option');
+    let correctSelected = false;
+    optionsDiv.forEach(btn => {
+        btn.disabled = true;
+        if(btn.textContent === q.answer){
+            btn.classList.add('correct');
+            if(btn === selected) correctSelected = true;
+        } else if(btn === selected){
+            btn.classList.add('wrong');
+        }
+    });
+    userAnswers.push({question:q.question, selected:selected.textContent, correct:q.answer});
+    if(correctSelected) score++;
+    setTimeout(() => {
+        currentQuestion++;
+        loadQuestion();
+    }, 800);
+}
+
+function showReview(){
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = `<h2>Quiz Completed! Your Score: ${score} / ${quiz.length}</h2>`;
+    const reviewDiv = document.createElement('div');
+    reviewDiv.className = 'review-container';
+    userAnswers.forEach((ua,i)=>{
+        const div = document.createElement('div');
+        div.className = 'review-item';
+        div.innerHTML = `<b>Q${i+1}:</b> ${ua.question}<br>
+                         <b>Your Answer:</b> ${ua.selected} <br>
+                         <b>Correct Answer:</b> ${ua.correct}`;
+        reviewDiv.appendChild(div);
+    });
+    container.appendChild(reviewDiv);
+    const btnRestart = document.createElement('button');
+    btnRestart.className = 'btn';
+    btnRestart.textContent = 'Restart Quiz';
+    btnRestart.onclick = restartQuiz;
+    container.appendChild(btnRestart);
+}
+
+function restartQuiz(){
+    currentQuestion = 0;
+
+    score = 0;
+    userAnswers = [];
+    shuffleArray(quiz);
+    loadQuestion();
+}
+
+function quitQuiz(){
+    if(confirm("Are you sure you want to quit?")){
+        document.getElementById('quiz-container').innerHTML = `<h2>Quiz Quit. Your Score: ${score} / ${quiz.length}</h2>`;
+    }
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
