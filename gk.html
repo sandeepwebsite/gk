@@ -64,9 +64,53 @@
       margin-bottom: 0.75rem;
     }
 
-    .chapter p {
-      font-size: 0.95rem;
-      color: #555;
+    /* Modern styles for lists & links */
+    .chapter ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  counter-reset: item; /* start numbering */
+}
+
+.chapter li {
+  background: #f9f9ff;
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.9rem 0.6rem 2.5rem; /* add space for number */
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  counter-increment: item; /* increase count */
+}
+
+.chapter li::before {
+  content: counter(item) ".";
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  color: #6f42c1;
+}
+
+
+    .chapter li:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .chapter a {
+      display: block;
+      color: #4e73df;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.3s, letter-spacing 0.2s;
+    }
+
+    .chapter a:hover {
+      color: #6f42c1;
+      letter-spacing: 0.5px;
     }
 
     .back-btn {
@@ -104,34 +148,49 @@
 </head>
 <body>
   <header>
-    <h1>General Knowedge</h1>
+    <h1>General Knowledge</h1>
     <p>Explore important chapters in world and regional history</p>
   </header>
 
-  <a href="index.html" class="back-btn">⬅ Back to Home</a>
+  <a href="index.html" class="back-btn" aria-label="Back to Home">⬅ Back to Home</a>
 
   <section class="chapters">
     <div class="chapter">
       <h2>History</h2>
-      <li><a href="revolution.html">Indian Revolution</a></li>
+      <ul>
+        <li><a href="revolution.html">Indian Revolution</a></li>
+      </ul>
     </div>
+
     <div class="chapter">
       <h2>Geography</h2>
+      <ul>
+        <li><a href="#">Coming Soon</a></li>
+      </ul>
     </div>
+
     <div class="chapter">
       <h2>Polity</h2>
-      <li><a href="random-article.html">Gauess Articles</a></li>
-      <li><a href="random-article-number.html">Gauess Articles No</a></li>
+      <ul>
+        <li><a href="random-article.html">Guess Articles</a></li>
+        <li><a href="random-article-number.html">Guess Articles No</a></li>
+      </ul>
     </div>
+
     <div class="chapter">
       <h2>Science</h2>
-      <li><a href="measuring-instruments.html">Measuring Instruments</a></li>
-      <li><a href="study-of-different-fields.html">Study of Different Fields</a></li>
-      <li><a href="disease-and-deficiency.html">Disease and Deficiency</a></li>
+      <ul>
+        <li><a href="measuring-instruments.html">Measuring Instruments</a></li>
+        <li><a href="study-of-different-fields.html">Study of Different Fields</a></li>
+        <li><a href="disease-and-deficiency.html">Disease and Deficiency</a></li>
+      </ul>
     </div>
+
     <div class="chapter">
       <h2>Math</h2>
-      <li><a href="percentage-by-manas.html">Percentage by Manas Sir</a></li>
+      <ul>
+        <li><a href="percentage-by-manas.html">Percentage by Manas Sir</a></li>
+      </ul>
     </div>
   </section>
 
@@ -140,7 +199,3 @@
   </footer>
 </body>
 </html>
-
-
-
-
