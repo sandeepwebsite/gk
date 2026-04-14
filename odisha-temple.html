@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPSC Temple Quiz</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.quiz-box {
+    background: #111;
+    padding: 25px;
+    border-radius: 12px;
+    width: 420px;
+    box-shadow: 0 0 15px #000;
+}
+h2 { font-size: 18px; }
+.option {
+    background: #222;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.option:hover { background: #444; }
+.correct { background: green !important; }
+.wrong { background: red !important; }
+button {
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    background: #00c6ff;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+#score { text-align: center; margin-top: 10px; }
+#attempts { text-align:center; margin-top:10px; font-size:14px; }
+</style>
+</head>
+
+<body>
+
+<div class="quiz-box">
+    <h2 id="question"></h2>
+    <div id="options"></div>
+    <button onclick="nextQuestion()">Next</button>
+    <div id="score"></div>
+    <div id="attempts"></div>
+</div>
+
+<script>
+
+// QUESTIONS (use your existing array)
+const questions = window.questions || [
+  {q:"Which temple is built along the bank of Bindu Sagar lake?", o:["Ananta Basudeva temple","Biraja temple","Daiteswar temple","Chausathi Yogini temple"], a:"Ananta Basudeva temple"},
+{q:"Which temple is located in Jajpur?", o:["Huma","Biraja","Kichakeswari","None of these"], a:"Biraja"},
+{q:"The Hindu temple dedicated to Lord Shiva is", o:["Jagannath temple","Samaleswari temple","Vaital Deul temple","Brahmeshwar temple"], a:"Brahmeshwar temple"},
+{q:"Which temple is classified as ‘Panchatanaya’?", o:["Daiteswar","Brahmeshwar","Khichakeswari","Mukteswar"], a:"Brahmeshwar"},
+{q:"Chausathi Yogini temple in Hirapur is near which city?", o:["Cuttack","Dhenkanal","Bhubaneswar","Rourkela"], a:"Bhubaneswar"},
+{q:"Huma temple has which striking feature?", o:["Oldest temple","Leaning structure","Nagara style","Wood structure"], a:"Leaning structure"},
+{q:"Jagannath temple belongs to which century?", o:["10th","11th","12th","13th"], a:"12th"},
+{q:"Which temple is one of the Char Dhams in Odisha?", o:["Jagannath temple","Konark temple","Dhakeswari temple","Dwarkadhish"], a:"Jagannath temple"},
+{q:"Which temple is situated at Puri?", o:["Vaital Deul","Sun Temple","Mukteswar","Jagannath temple"], a:"Jagannath temple"},
+{q:"Which temple was called ‘White Pagoda’?", o:["Rajarani","Lingaraj","Huma","Jagannath temple"], a:"Jagannath temple"},
+{q:"Which temple was rebuilt in 20th century?", o:["Mukteswar","Brahmeshwar","Kichakeswari","Daiteswar"], a:"Kichakeswari"},
+{q:"Kedareshwar temple is located in which district?", o:["Puri","Balasore","Koraput","Dhenkanal"], a:"Koraput"},
+{q:"Which Odisha Nagara style temples are in Bhubaneswar?", o:["4 and 5","Only 2","2, 4 and 5","1, 2 and 5"], a:"Only 2"},
+{q:"Which temple is 'time quintessence of Orissan architecture'?", o:["Daiteswar","Kichakeswari","Rajarani","Lingaraj"], a:"Lingaraj"},
+{q:"Which temple built in 9th century dedicated to Shiva?", o:["Jagannath","Konark","Brahmeshwar","Mukteswar"], a:"Mukteswar"},
+{q:"Parasurameswar temple is in which city?", o:["Puri","Cuttack","Bhubaneswar","Konark"], a:"Bhubaneswar"},
+{q:"Which temple resembles Kandariya Mahadeva temple?", o:["Kedareswar","Rajarani","Kichakeswari","Lingaraj"], a:"Rajarani"},
+{q:"Which temple is called ‘Black Pagoda’?", o:["Jagannath","Konark Sun temple","Brahmeswar","Mukteswar"], a:"Konark Sun temple"},
+{q:"Which temple has chariot with 12 pairs of wheels?", o:["Jagannath","Lingaraj","Sun temple","Rajarani"], a:"Sun temple"},
+{q:"Tara Tarini temple is in which district?", o:["Ganjam","Puri","Gajapati","Koraput"], a:"Ganjam"},
+{q:"Vaital Deul temple is dedicated to?", o:["Shiva","Balabhadra","Chamunda","Surya"], a:"Chamunda"},
+{q:"Vaital Deul style is?", o:["Rekha","Pidha","Khakhara","None"], a:"Khakhara"},
+{q:"Peace Pagoda is in which district?", o:["Angul","Jharsuguda","Khorda","Kendrapara"], a:"Khorda"},
+{q:"Ananta Basudeva Temple is dedicated to?", o:["Shiva","Vishnu","Surya","Durga"], a:"Vishnu"},
+{q:"Ananta Basudeva Temple was built in?", o:["11th","12th","13th","14th"], a:"13th"},
+{q:"Biraja Temple is located in?", o:["Puri","Jajpur","Sambalpur","Ganjam"], a:"Jajpur"},
+{q:"Biraja Temple is one of?", o:["Jyotirlinga","Shakti Peetha","Char Dham","None"], a:"Shakti Peetha"},
+{q:"Biraja idol has?", o:["4 arms","6 arms","2 arms","8 arms"], a:"2 arms"},
+{q:"Brahmeswar Temple built by?", o:["Udyotakesari","Kolavati Devi","Chandrika Devi","Hiradevi"], a:"Kolavati Devi"},
+{q:"Brahmeswar Temple belongs to?", o:["9th","10th","11th","12th"], a:"11th"},
+{q:"Chausathi Yogini Temple is at?", o:["Puri","Hirapur","Konark","Jajpur"], a:"Hirapur"},
+{q:"Yogini cult flourished during?", o:["1-5","5-7","8-13","14-16"], a:"8-13"},
+{q:"Daiteswar Temple built with?", o:["Marble","Granite","Sandstone","Brick"], a:"Sandstone"},
+{q:"Huma Temple famous for?", o:["Tower","Leaning","Dome","Cave"], a:"Leaning"},
+{q:"Huma Temple is on river?", o:["Brahmani","Baitarani","Mahanadi","Subarnarekha"], a:"Mahanadi"},
+{q:"Jagannath Temple located in?", o:["Bhubaneswar","Puri","Cuttack","Jajpur"], a:"Puri"},
+{q:"Jagannath Temple belongs to?", o:["10th","11th","12th","13th"], a:"12th"},
+{q:"Built by Chodaganga Deva?", o:["Lingaraj","Jagannath","Konark","Mukteswar"], a:"Jagannath"},
+{q:"Jagannath Temple is one of?", o:["Jyotirlinga","Char Dham","UNESCO","None"], a:"Char Dham"},
+{q:"Height of Jagannath Temple?", o:["150","180","214","250"], a:"214"},
+{q:"Called White Pagoda?", o:["Konark","Jagannath","Lingaraj","Mukteswar"], a:"Jagannath"},
+{q:"Rath Yatra starts from?", o:["Konark","Bhubaneswar","Puri","Jajpur"], a:"Puri"},
+{q:"Kichakeswari Temple in?", o:["Sambalpur","Mayurbhanj","Ganjam","Balasore"], a:"Mayurbhanj"},
+{q:"Kedareswar Temple belongs to?", o:["Ganga","Somavamsi","Bhauma","Chauhan"], a:"Somavamsi"},
+{q:"Lingaraj Temple built in?", o:["9th","10th","11th","12th"], a:"11th"},
+{q:"Lingaraj Temple deity?", o:["Vishnu","Shiva","Surya","Ganesh"], a:"Shiva"},
+{q:"Lingaraj style?", o:["Dravidian","Vesara","Nagara","Islamic"], a:"Nagara"},
+{q:"Mukteswar Temple called?", o:["Oldest","Gem","Largest","Black Pagoda"], a:"Gem"},
+{q:"Mukteswar famous for?", o:["Dome","Torana","Pillars","Cave"], a:"Torana"},
+{q:"Parasurameswar Temple built in?", o:["5th","6th","7th","8th"], a:"7th"},
+{q:"Parasurameswar dynasty?", o:["Ganga","Shailodbhava","Somavamsi","Chauhan"], a:"Shailodbhava"},
+{q:"First Jagamohana temple?", o:["Lingaraj","Mukteswar","Parasurameswar","Rajarani"], a:"Parasurameswar"},
+{q:"Rajarani Temple material?", o:["Granite","Yellow stone","Marble","Brick"], a:"Yellow stone"},
+{q:"Rajarani Temple belongs to?", o:["9th","10th","11th","12th"], a:"11th"},
+{q:"Rajarani resembles?", o:["Konark","Khajuraho","Ellora","Ajanta"], a:"Khajuraho"},
+{q:"Samaleswari Temple in?", o:["Puri","Sambalpur","Jajpur","Ganjam"], a:"Sambalpur"},
+{q:"Samaleswari deity?", o:["Shiva","Vishnu","Durga","Samaleswari"], a:"Samaleswari"},
+{q:"Konark built by?", o:["Chodaganga","Narasimhadeva","Udyotakesari","Yayati"], a:"Narasimhadeva"},
+{q:"Konark belongs to?", o:["11th","12th","13th","14th"], a:"13th"},
+{q:"Konark called?", o:["White","Black","Golden","Red"], a:"Black"},
+{q:"Konark is?", o:["Mosque","Church","UNESCO","Fort"], a:"UNESCO"},
+{q:"Konark shape?", o:["Ship","Chariot","Palace","Cave"], a:"Chariot"},
+{q:"Konark wheels?", o:["12","16","24","32"], a:"24"},
+{q:"Konark horses?", o:["5","6","7","8"], a:"7"},
+{q:"Tara Tarini in?", o:["Puri","Ganjam","Jajpur","Sambalpur"], a:"Ganjam"},
+{q:"Tara Tarini is?", o:["Jyotirlinga","Shakti Peetha","Buddhist","Jain"], a:"Shakti Peetha"},
+{q:"Vaital Deul deity?", o:["Shiva","Vishnu","Chamunda","Surya"], a:"Chamunda"},
+{q:"Vaital Deul century?", o:["7th","8th","9th","10th"], a:"9th"},
+{q:"Vaital Deul style?", o:["Nagara","Dravidian","Khakhara","Vesara"], a:"Khakhara"},
+{q:"Semi-cylindrical roof?", o:["Lingaraj","Vaital","Mukteswar","Rajarani"], a:"Vaital"},
+{q:"Yogini Temple built by?", o:["Kolavati","Hiradevi","Chandrika","Tara"], a:"Hiradevi"},
+{q:"Biraja Kshetra is?", o:["Puri","Konark","Jajpur","Sambalpur"], a:"Jajpur"},
+{q:"Jagannath kitchen feeds?", o:["5k","10k","20k","50k"], a:"20k"},
+{q:"Lingaraj height?", o:["150","160","170","180"], a:"180"},
+{q:"Konark height?", o:["200","210","227","250"], a:"227"},
+{q:"Parasurameswar deity?", o:["Vishnu","Shiva","Surya","Durga"], a:"Shiva"},
+{q:"Mukteswar built?", o:["850","900","950-975","1000"], a:"950-975"},
+{q:"Yogini Mahotsav month?", o:["Jan","Mar","Dec","Aug"], a:"Dec"},
+{q:"Huma deity?", o:["Jagannath","Vimaleswara","Surya","Ganesh"], a:"Vimaleswara"},
+{q:"Kedar Gouri includes?", o:["Rajarani","Kedareswar","Mukteswar","Parasurameswar"], a:"Kedareswar"},
+{q:"Konark wheels represent?", o:["Weeks","Months","Time","Season"], a:"Time"},
+{q:"Jagannath wall height?", o:["4","5","6","7"], a:"6"},
+{q:"Yogini temples in India?", o:["2","3","4","5"], a:"4"}
+];
+
+let shuffled = [...questions].sort(() => Math.random() - 0.5);
+let index = 0;
+let score = 0;
+let answered = false;
+
+// ATTEMPT TRACKING
+let attemptData = JSON.parse(localStorage.getItem("quizAttempts")) || [];
+
+function loadQuestion() {
+    if (index >= shuffled.length) {
+        finishQuiz();
+        return;
+    }
+
+    let q = shuffled[index];
+    document.getElementById("question").innerText = (index+1) + "/" + shuffled.length + " - " + q.q;
+
+    let optionsHTML = "";
+    let shuffledOptions = [...q.o].sort(() => Math.random() - 0.5);
+
+    shuffledOptions.forEach(opt => {
+        optionsHTML += `<div class="option" onclick="selectAnswer(this,'${opt}')">${opt}</div>`;
+    });
+
+    document.getElementById("options").innerHTML = optionsHTML;
+}
+
+function selectAnswer(el, selected) {
+    if(answered) return;
+    answered = true;
+
+    let correct = shuffled[index].a;
+    let options = document.querySelectorAll(".option");
+
+    options.forEach(opt => {
+        opt.onclick = null;
+        if (opt.innerText === correct) opt.classList.add("correct");
+        if (opt.innerText === selected && selected !== correct) opt.classList.add("wrong");
+    });
+
+    if (selected === correct) score++;
+}
+
+function nextQuestion() {
+    if(!answered) return alert("Select answer first!");
+    answered = false;
+    index++;
+    loadQuestion();
+    updateScore();
+}
+
+function updateScore(){
+    document.getElementById("score").innerText = `Score: ${score}`;
+}
+
+function finishQuiz(){
+    // save attempt
+    attemptData.push(score);
+    localStorage.setItem("quizAttempts", JSON.stringify(attemptData));
+
+    document.getElementById("question").innerText = "Quiz Finished";
+    document.getElementById("options").innerHTML = "";
+
+    let totalQ = shuffled.length;
+    let first = attemptData[0] ?? "-";
+    let second = attemptData[1] ?? "-";
+
+    document.getElementById("score").innerHTML = `
+        Total Questions: ${totalQ}<br>
+        Current Score: ${score}<br>
+        First Attempt: ${first}<br>
+        Second Attempt: ${second}
+    `;
+
+    document.getElementById("attempts").innerText = `Total Attempts: ${attemptData.length}`;
+}
+
+loadQuestion();
+updateScore();
+
+</script>
+
+</body>
+</html>
